@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import moment from "moment";
 import "./DateTimePicker.css";
 moment.locale("en");
@@ -8,33 +8,37 @@ const DateTimePicker = ({ onChange, value }) => {
     value ? moment(value) : moment()
   );
 
+  useEffect(() => {
+    if (value) {
+      setSelectedDate(moment(value));
+    }
+  }, [value]);
+
   const handleDateChange = (event) => {
     const date = moment(event.target.value, "YYYY-MM-DD");
     if (date.isValid()) {
-      setSelectedDate((prevDate) => {
-        const newDate = moment(prevDate).set({
-          year: date.year(),
-          month: date.month(),
-          date: date.date(),
-        });
-        if (onChange) {
-          onChange(newDate);
-        }
-        return newDate;
+      const newDate = moment(selectedDate).set({
+        year: date.year(),
+        month: date.month(),
+        date: date.date(),
       });
+      setSelectedDate(newDate);
+      if (onChange) {
+        onChange(newDate);
+      }
     }
   };
 
   const handleTimeChange = (event) => {
-    const time = event.target.value.split(":");
-    const date = moment(selectedDate).set({
-      hour: time[0],
-      minute: time[1],
+    const [hour, minute] = event.target.value.split(":");
+    const newDate = moment(selectedDate).set({
+      hour,
+      minute,
     });
-    if (date.isValid()) {
-      setSelectedDate(date);
+    if (newDate.isValid()) {
+      setSelectedDate(newDate);
       if (onChange) {
-        onChange(date);
+        onChange(newDate);
       }
     }
   };
